@@ -6,7 +6,7 @@ Le carnet de bord, tenu par **le Chef** et mis à jour à chaque tour (voir `CLA
 
 - 2026-10-18 : Chef elijah-2d, Codeur elijah-0e
 - 2026-10-19 : Chef **elijah-76**, Codeur **elijah-dd** (donné par Elijah)
-- 2026-10-21 ~19h10 : elijah-dd (Codeur 1, les IA) passe sur le modèle **Fable 5.1** (choix d'Elijah, conseil du Chef) ; elijah-9e et le Chef restent sur Opus 5.5.
+- 2026-10-21 ~19h10 : elijah-dd (Codeur 1, les IA) passe sur le modèle **Fable 5.1**, effort **high** (choix d'Elijah, conseil du Chef) ; elijah-9e et le Chef restent sur Opus 5.5.
 - 2026-10-21 18h20 : **Codeur 2 = elijah-9e** (donné par Elijah, « ça ne va pas très vite »). Il travaille dans « Grand Prix Dynasty - codeur 2 » (git worktree, branche codeur2) sur ce qui se voit (caméra, voiture 3D, feux) ; le Chef vérifie et fusionne. Un seul passage de tests à la fois (verrou /tmp/gpd-tests.lock). Rapport : rapports/tour-18b-rapport.md.
 
 ## Règles de tests (2026-10-21, accord d'Elijah)
