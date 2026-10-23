@@ -567,7 +567,12 @@ function deciderLigne(pilote, v, vues) {
   // il ne se rabat pas sur elles) ; celle qui arrive de plus loin derrière doit faire attention, pas lui
   // Une voiture déjà devant lui, dans sa file, ne compte pas : derrière elle, c'est sa vitesse qui le garde à distance
   // (piloterIA) ; la note ne doit pas le pousser sur une autre ligne pour l'éviter
-  const voisines = vues.filter(w => { const g = ecartLeLong(c, w.s - s0); return g > -R.IA_VISION_COTE[0] && !(g > R.LONGUEUR_VOITURE && Math.abs(w.d - e0) < ecartSur(v.u)); });
+  // « dans sa file » : à moins de l'écart sûr de sa place à lui, ou de sa ligne rapide à la hauteur de la voiture (tour 22 :
+  // en sortie de virage, la voiture devant s'écartait vers l'extérieur avant lui ; jugée hors de sa file, elle devenait une
+  // voisine à éviter, et il sortait par l'intérieur, lentement, au lieu de la suivre)
+  const dansSaFile = w => { const g = ecartLeLong(c, w.s - s0); if (g <= R.LONGUEUR_VOITURE) return false;
+    return Math.abs(w.d - e0) < ecartSur(v.u) || (R.IA_FILE_LIGNE && g <= R.IA_HORIZON && Math.abs(w.d - t.rapide[Math.min(N, Math.round(g / pas))]) < ecartSur(v.u)); };
+  const voisines = vues.filter(w => ecartLeLong(c, w.s - s0) > -R.IA_VISION_COTE[0] && !dansSaFile(w));
   let meilleure = Infinity, choix = null;
   for (const [type, cote] of essais) {
     const cible = t.cible;

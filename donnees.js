@@ -179,6 +179,7 @@ const REGLAGES = {
   IA_DROITE_ATTAQUE: 150,       // m : une attaque ne démarre qu'avant un virage précédé d'au moins tant de ligne droite
   IA_FILE_DISTANCE: 30,         // m : hors attaque, une voiture devant lui à moins de ça…
   IA_FILE_COTE: 6,              // m : … et à moins de ça de côté, il la suit (il reste à la file)
+  IA_FILE_LIGNE: 1,             // 1 : une voiture devant lui sur sa ligne rapide (à sa hauteur à elle) est dans sa file : il la suit, il ne l'évite pas (tour 22)
   IA_VITESSE_VIRAGE_LENT: 36,   // m/s (130 km/h) : un virage lent, la carte y passe moins vite que ça…
   IA_NEZ_DEVANT: 0.5,           // … au point de freinage, l'attaquant doit y avoir le nez devant (son centre au moins cette part de longueur devant)
   IA_REFLEXE_COTE: 4.5,         // m : il ne braque pas vers une voiture à côté de lui plus près que ça
