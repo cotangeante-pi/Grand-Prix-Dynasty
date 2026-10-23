@@ -413,10 +413,10 @@ t('coût des contacts : 20 voitures × 120 pas', ()=>{const vs=placesGrille(C,20
   temps.sort((x,y)=>x-y);L.push('  (contacts de 20 voitures × 120 pas : meilleur '+temps[0].toFixed(2)+' ms, médiane '+temps[4].toFixed(2)+' ms)');v(temps[0]<20,temps[0]+' ms');});
 
 // --- les courses entre IA (tour 9)
-t('vision : le pilote voit les voitures devant lui (cône, couloir) et à côté (rétroviseurs), pas celles loin derrière ; pour chacune, sa place sur la piste et sa vitesse', ()=>{
-  const a=creerVoiture(C,250,0),b=creerVoiture(C,280,0),c=creerVoiture(C,230,0),d=creerVoiture(C,247,6),f=creerVoiture(C,330,-6);
-  const vues=voituresVues(a,[a,b,c,d,f]);v(vues.length===3,vues.length+' vues');v(vues.some(x=>Math.abs(x.s-280)<1.5&&Math.abs(x.d)<0.01),'devant');
-  v(vues.some(x=>Math.abs(x.s-247)<1.5&&Math.abs(x.d-6)<0.01),'à côté');v(!vues.some(x=>Math.abs(x.s-230)<1.5),'voit 20 m derrière');v(vues.some(x=>Math.abs(x.d+6)<0.01),'cône');
+t('vision : le pilote voit les voitures devant lui (cône, couloir), à côté (rétroviseurs) et derrière lui dans son couloir jusqu’à IA_RETRO_DISTANCE (rétroviseur arrière), pas celles plus loin derrière ni derrière à côté du couloir ; pour chacune, sa place sur la piste et sa vitesse', ()=>{
+  const a=creerVoiture(C,250,0),b=creerVoiture(C,280,0),c=creerVoiture(C,230,0),d=creerVoiture(C,247,6),f=creerVoiture(C,330,-6),g=creerVoiture(C,200,0),h=creerVoiture(C,230,6);
+  const vues=voituresVues(a,[a,b,c,d,f,g,h]);v(vues.length===4,vues.length+' vues');v(vues.some(x=>Math.abs(x.s-280)<1.5&&Math.abs(x.d)<0.01),'devant');
+  v(vues.some(x=>Math.abs(x.s-247)<1.5&&Math.abs(x.d-6)<0.01),'à côté');v(vues.some(x=>Math.abs(x.s-230)<1.5&&Math.abs(x.d)<0.01),'ne voit pas 20 m derrière');v(!vues.some(x=>Math.abs(x.s-200)<1.5),'voit 50 m derrière');v(!vues.some(x=>Math.abs(x.s-230)<1.5&&Math.abs(x.d-6)<0.01),'voit 20 m derrière hors du couloir');v(vues.some(x=>Math.abs(x.d+6)<0.01),'cône');
   b.u=40;v(Math.abs(voituresVues(a,[a,b])[0].vitesse-40)<1e-6);});
 t('simulerCourse : même graine, mêmes résultats ; autre graine, autres rythmes', ()=>{const r1=simulerCourse(C,4,1,9),r2=simulerCourse(C,4,1,9),r3=simulerCourse(C,4,1,10);
   v(JSON.stringify(r1.voitures)===JSON.stringify(r2.voitures),'différent');v(r1.voitures.every(x=>x.fini));v(r1.voitures[0].rythme!==r3.voitures[0].rythme);});

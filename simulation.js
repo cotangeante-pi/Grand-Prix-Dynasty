@@ -17,7 +17,8 @@ function placesGrille(circuit, nb) {
 }
 
 // ce que le pilote de v voit : les voitures dans son cône de vision devant (IA_VISION_ANGLE, IA_VISION_DISTANCE),
-// juste devant dans son couloir (IA_VISION_COULOIR), et à côté de lui (IA_VISION_COTE, ses rétroviseurs).
+// juste devant dans son couloir (IA_VISION_COULOIR), à côté de lui (IA_VISION_COTE, ses rétroviseurs), et derrière lui dans
+// son couloir jusqu'à IA_RETRO_DISTANCE (son rétroviseur arrière).
 // Pour chacune : où elle est sur la piste (s, d) et sa vitesse le long de la piste. Rien de ce qu'il ne verrait pas.
 function voituresVues(v, voitures) {
   const R = REGLAGES, c = Math.cos(v.cap), s = Math.sin(v.cap), tanAngle = Math.tan(R.IA_VISION_ANGLE), vues = [];
@@ -28,7 +29,8 @@ function voituresVues(v, voitures) {
     const avant = c * dx + s * dz, cote = Math.abs(-s * dx + c * dz);
     const aCote = Math.abs(avant) <= R.IA_VISION_COTE[0] && cote <= R.IA_VISION_COTE[1];
     const devant = avant > 0 && Math.hypot(dx, dz) <= R.IA_VISION_DISTANCE && (cote <= avant * tanAngle || cote <= R.IA_VISION_COULOIR);
-    if (!aCote && !devant) continue;
+    const derriere = avant < 0 && -avant <= R.IA_RETRO_DISTANCE && cote <= R.IA_VISION_COULOIR;
+    if (!aCote && !devant && !derriere) continue;
     const cw = Math.cos(w.cap), sw = Math.sin(w.cap);
     const vx = cw * w.u - sw * w.v, vz = sw * w.u + cw * w.v;
     // id : la voiture elle-même, pour la reconnaître d'un instant à l'autre (comme un pilote reconnaît une voiture)

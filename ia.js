@@ -341,6 +341,7 @@ function creerPilote(carte, rythme = 1, style = styleNeutre(), decalage = 0) {
     retenuePar: null,  // … et laquelle (le repère de voituresVues)
     attaque: null,   // { id, etat: preparer | decaler | plonger, virage, cote, duree } quand il attaque
     cede: null,      // { id, duree } : la voiture à côté de lui à qui il cède le virage
+    retro: null,     // { id, duree, g0, rapide } : la voiture derrière lui dans son rétroviseur, depuis quand, l'écart au début, si elle le rattrape
     repos: 0,        // s avant de pouvoir réattaquer après une attaque abandonnée
     attaques: 0, reussies: 0,
     ligne: null,   // { s0, e, v } : l'écart et la vitesse visée tous les IA_LIGNE_PAS m à partir de s0
@@ -512,11 +513,14 @@ function deciderLigne(pilote, v, vues) {
   pilote.depassement = !!enAttaque;
   // les lignes de rechange (intérieur, extérieur, garder sa place), seulement sans voiture tout près de lui : à côté
   // d'une autre, il ne fait pas d'écart imprévu, il garde sa ligne (et la priorité règle le reste)
-  const entoure = vues.some(w => Math.abs(ecartLeLong(c, w.s - s0)) < R.LONGUEUR_VOITURE + R.IA_MARGE_LONG && Math.abs(w.d - e0) < R.IA_REFLEXE_COTE);
+  // (une voiture derrière lui au-delà de ses rétroviseurs de côté, vue seulement dans le rétroviseur arrière, ne l'entoure pas)
+  const entoure = vues.some(w => { const g = ecartLeLong(c, w.s - s0); return g > -R.IA_VISION_COTE[0] && g < R.LONGUEUR_VOITURE + R.IA_MARGE_LONG && Math.abs(w.d - e0) < R.IA_REFLEXE_COTE; });
   if (entoure && !enAttaque) essais.length = 1;
   // (seul, sans aucune voiture en vue, il n'en a pas besoin : sur 200 m, elles semblent parfois meilleures et lui
   // coûtent jusqu'à 0,8 s au tour)
-  if (!enAttaque && !entoure && sens && vues.length) essais.push(['interieur', sens], ['exterieur', -sens]);
+  // (une voiture seulement dans son rétroviseur arrière ne compte pas : elle ne change rien à sa ligne)
+  const devantOuACote = vues.some(w => ecartLeLong(c, w.s - s0) > -R.LONGUEUR_VOITURE);
+  if (!enAttaque && !entoure && sens && devantOuACote) essais.push(['interieur', sens], ['exterieur', -sens]);
   const finAttaque = enAttaque ? ((carte.virages[a.virage].s + R.IA_ATTAQUE_APRES_SOMMET - s0) % L + L) % L : 0;
   // la priorité, avec les voitures à côté de lui ou dans ses rétroviseurs à moins d'une longueur, jusqu'à la sortie
   // du prochain virage : il ne se décale pas vers elles (au mieux jusqu'à l'écart sûr) ; et si l'une est à hauteur
@@ -537,6 +541,16 @@ function deciderLigne(pilote, v, vues) {
       if ((borne - t.rapide[i]) * cote < -R.IA_CEDER_ECART) { pilote.cede = { id: w.id, duree: 0 }; break; }
     }
     pilote.depassement = true;
+  }
+  // une voiture plus rapide le rattrape (son rétroviseur, piloterIA) : dans la ligne droite, il ne se rabat pas sur elle,
+  // il garde sa ligne jusqu'au point de freinage (pas de « se ranger » à l'entrée du virage) ; le côté reste libre
+  if (R.IA_RETRO_GARDER && pilote.retro && pilote.retro.rapide && !enAttaque) {
+    const w = vues.find(x => x.id === pilote.retro.id), f = prochainFreinage(carte, s0);
+    if (w && f && f.distance <= R.IA_HORIZON) {
+      const cote = Math.sign(w.d - e0);
+      if (cote) places.push({ cote, borne: e0, jusque: f.distance });
+      else places.push({ cote: 1, borne: e0, jusque: f.distance }, { cote: -1, borne: e0, jusque: f.distance });
+    }
   }
   // les voitures qui comptent pour noter ses lignes : devant lui, à côté, ou juste derrière (dans ses rétroviseurs :
   // il ne se rabat pas sur elles) ; celle qui arrive de plus loin derrière doit faire attention, pas lui
@@ -684,6 +698,13 @@ function piloterIA(pilote, v, vues, dt) {
   pilote.attente -= dt;
   majAttaque(pilote, v, vues, dt);
   majErreur(pilote, v, vues, dt);
+  // son rétroviseur : la voiture la plus proche derrière lui, dans son couloir ; depuis quand il la voit, et si elle s'est
+  // rapprochée (alors elle est plus rapide que lui : deciderLigne ne se rabat pas sur elle)
+  let arriere = null, gArriere = -Infinity;
+  for (const w of vues) { const g = ecartLeLong(c, w.s - p.s); if (g < -R.LONGUEUR_VOITURE && g > gArriere && Math.abs(w.d - p.d) < R.IA_VISION_COULOIR) { arriere = w; gArriere = g; } }
+  if (!arriere) pilote.retro = null;
+  else if (!pilote.retro || pilote.retro.id !== arriere.id) pilote.retro = { id: arriere.id, duree: 0, g0: gArriere, rapide: false };
+  else { pilote.retro.duree += dt; if (pilote.retro.duree >= R.IA_RETRO_DUREE && gArriere > pilote.retro.g0 + R.IA_RETRO_RAPPROCHEMENT) pilote.retro.rapide = true; }
   let r = pilote.ligne ? ((p.s - pilote.ligne.s0) % L + L) % L : Infinity;
   if (!pilote.ligne || pilote.attente <= 0 || r > R.IA_HORIZON / 2) {
     deciderLigne(pilote, v, vues);
@@ -729,14 +750,15 @@ function piloterIA(pilote, v, vues, dt) {
   if (retenuPar !== null && libre - cible > R.IA_RETENUE_ECART * (1.5 - agressivite(pilote))) { pilote.retenue += dt; pilote.retenuePar = retenuPar; }
   else pilote.retenue = Math.max(0, pilote.retenue - dt);
   // le réflexe : il ne braque pas vers une voiture qui est à côté de lui, trop près ; s'il est un peu en retrait, il lui cède
+  // (sauf à celle qu'il attaque, une fois décalé à côté d'elle : c'est elle qui lui laisse la place)
   let dir = direction;
   for (const w of vues) {
     // la zone s'allonge devant lui quand il arrive vite sur elle (il doit avoir le temps de céder)
     const g = ecartLeLong(c, w.s - p.s), cote = w.d - p.d;
     const portee = R.LONGUEUR_VOITURE + R.IA_MARGE_LONG + (g > 0 ? Math.max(0, v.u - w.vitesse) * R.IA_REFLEXE_TEMPS : 0);
-    if (g > portee || g < -(R.LONGUEUR_VOITURE + R.IA_MARGE_LONG) || Math.abs(cote) > R.IA_REFLEXE_COTE) continue;
+    if (g > portee || g <= -R.IA_VISION_COTE[0] || Math.abs(cote) > R.IA_REFLEXE_COTE) continue;   // (pas celles vues seulement dans le rétroviseur arrière)
     if (Math.sign(dir) === Math.sign(cote)) dir = 0;
-    if (g > 0) cible = Math.min(cible, w.vitesse - (pilote.cede && pilote.cede.id === w.id ? R.IA_CEDER_FORT : R.IA_CEDER));
+    if (g > 0) cible = Math.min(cible, w.vitesse - (R.IA_ATTAQUE_SANS_CEDER && a && a.etat !== 'preparer' && w.id === a.id ? 0 : pilote.cede && pilote.cede.id === w.id ? R.IA_CEDER_FORT : R.IA_CEDER));
   }
   // une erreur en cours : de mauvaises commandes, rien d'autre (même physique)
   const er = pilote.erreur ? pilote.erreur.type : null;
