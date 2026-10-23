@@ -544,12 +544,12 @@ function deciderLigne(pilote, v, vues) {
   }
   // une voiture plus rapide le rattrape (son rétroviseur, piloterIA) : dans la ligne droite, il ne se rabat pas sur elle,
   // il garde sa ligne jusqu'au point de freinage (pas de « se ranger » à l'entrée du virage) ; le côté reste libre
+  // (seulement le côté par où elle arrive, quand elle est à moins de IA_RETRO_PROCHE, dans la droite avant le virage)
   if (R.IA_RETRO_GARDER && pilote.retro && pilote.retro.rapide && !enAttaque) {
     const w = vues.find(x => x.id === pilote.retro.id), f = prochainFreinage(carte, s0);
-    if (w && f && f.distance <= R.IA_HORIZON) {
-      const cote = Math.sign(w.d - e0);
+    if (w && f && f.distance <= R.IA_HORIZON && f.distance <= carte.virages[f.j].droite && ecartLeLong(c, w.s - s0) > -R.IA_RETRO_PROCHE) {
+      const cote = Math.abs(w.d - e0) > R.LARGEUR_VOITURE / 2 ? Math.sign(w.d - e0) : 0;
       if (cote) places.push({ cote, borne: e0, jusque: f.distance });
-      else places.push({ cote: 1, borne: e0, jusque: f.distance }, { cote: -1, borne: e0, jusque: f.distance });
     }
   }
   // les voitures qui comptent pour noter ses lignes : devant lui, à côté, ou juste derrière (dans ses rétroviseurs :
@@ -758,7 +758,9 @@ function piloterIA(pilote, v, vues, dt) {
     const portee = R.LONGUEUR_VOITURE + R.IA_MARGE_LONG + (g > 0 ? Math.max(0, v.u - w.vitesse) * R.IA_REFLEXE_TEMPS : 0);
     if (g > portee || g <= -R.IA_VISION_COTE[0] || Math.abs(cote) > R.IA_REFLEXE_COTE) continue;   // (pas celles vues seulement dans le rétroviseur arrière)
     if (Math.sign(dir) === Math.sign(cote)) dir = 0;
-    if (g > 0) cible = Math.min(cible, w.vitesse - (R.IA_ATTAQUE_SANS_CEDER && a && a.etat !== 'preparer' && w.id === a.id ? 0 : pilote.cede && pilote.cede.id === w.id ? R.IA_CEDER_FORT : R.IA_CEDER));
+    // (à l'attaquée, une fois à hauteur d'au moins un tiers de longueur, il ne cède plus ; avant, la retenue habituelle)
+    const aHauteurDElle = R.IA_ATTAQUE_SANS_CEDER && a && a.etat !== 'preparer' && w.id === a.id && g < R.LONGUEUR_VOITURE * (1 - R.IA_HAUTEUR_LAISSER);
+    if (g > 0 && !aHauteurDElle) cible = Math.min(cible, w.vitesse - (pilote.cede && pilote.cede.id === w.id ? R.IA_CEDER_FORT : R.IA_CEDER));
   }
   // une erreur en cours : de mauvaises commandes, rien d'autre (même physique)
   const er = pilote.erreur ? pilote.erreur.type : null;

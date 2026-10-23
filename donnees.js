@@ -254,8 +254,9 @@ const REGLAGES = {
   // le duel (tour 20) : le rétroviseur arrière, et le pilote rattrapé qui ne se rabat pas sur celui qui le rattrape
   IA_RETRO_DISTANCE: 40,        // m : … et, dans son rétroviseur, celles derrière elle jusque-là, dans son couloir (IA_VISION_COULOIR)
   IA_RETRO_DUREE: 2,            // s : une voiture dans son rétroviseur depuis ce temps, qui s'est rapprochée…
-  IA_RETRO_GARDER: 0,           // 1 : le pilote rattrapé garde sa ligne jusqu'au point de freinage (essai tour 20 : 21 chocs sur 30 courses, éteint)
-  IA_ATTAQUE_SANS_CEDER: 0,     // 1 : l'attaquant décalé ne roule pas moins vite que la voiture attaquée (essai tour 20 : sans effet sur le duel, éteint)
+  IA_RETRO_GARDER: 1,           // 1 : le pilote rattrapé ne se rabat pas du côté par où arrive l'attaquant (à moins de IA_RETRO_PROCHE, dans une droite, jusqu'au point de freinage)
+  IA_RETRO_PROCHE: 15,          // m : … quand l'attaquant est à moins de ça derrière lui
+  IA_ATTAQUE_SANS_CEDER: 1,     // 1 : l'attaquant à hauteur (au moins IA_HAUTEUR_LAISSER de longueur) ne cède plus sa vitesse à la voiture attaquée
   IA_RETRO_RAPPROCHEMENT: 3,    // m : … d'au moins ça, est plus rapide que lui : il garde sa ligne jusqu'au point de freinage (il ne se rabat pas sur elle)
 
   // la qualification du joueur (qualification.js) : un tour lancé, seul
