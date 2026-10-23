@@ -758,9 +758,13 @@ function piloterIA(pilote, v, vues, dt) {
     const portee = R.LONGUEUR_VOITURE + R.IA_MARGE_LONG + (g > 0 ? Math.max(0, v.u - w.vitesse) * R.IA_REFLEXE_TEMPS : 0);
     if (g > portee || g <= -R.IA_VISION_COTE[0] || Math.abs(cote) > R.IA_REFLEXE_COTE) continue;   // (pas celles vues seulement dans le rétroviseur arrière)
     if (Math.sign(dir) === Math.sign(cote)) dir = 0;
-    // (à l'attaquée, une fois à hauteur d'au moins un tiers de longueur, il ne cède plus ; avant, la retenue habituelle)
-    const aHauteurDElle = R.IA_ATTAQUE_SANS_CEDER && a && a.etat !== 'preparer' && w.id === a.id && g < R.LONGUEUR_VOITURE * (1 - R.IA_HAUTEUR_LAISSER);
-    if (g > 0 && !aHauteurDElle) cible = Math.min(cible, w.vitesse - (pilote.cede && pilote.cede.id === w.id ? R.IA_CEDER_FORT : R.IA_CEDER));
+    // (à l'attaquée, dès qu'il est décalé, il ne se règle plus sur sa vitesse : c'est la place qui décide ; il ne reste
+    // derrière que si l'espace libre de son côté, entre elle et le bord de la piste, est plus petit qu'une voiture
+    // plus IA_ESPACE_LAISSE)
+    const attaquee = a && a.etat !== 'preparer' && w.id === a.id;
+    const libre = attaquee ? c.largeur / 2 - a.cote * w.d - R.LARGEUR_VOITURE / 2 : 0;
+    const laPlace = R.IA_ATTAQUE_SANS_CEDER && attaquee && libre >= R.LARGEUR_VOITURE + R.IA_ESPACE_LAISSE;
+    if (g > 0 && !laPlace) cible = Math.min(cible, w.vitesse - (pilote.cede && pilote.cede.id === w.id ? R.IA_CEDER_FORT : R.IA_CEDER));
   }
   // une erreur en cours : de mauvaises commandes, rien d'autre (même physique)
   const er = pilote.erreur ? pilote.erreur.type : null;
