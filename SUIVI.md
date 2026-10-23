@@ -4,6 +4,7 @@ Le carnet de bord, tenu par **le Chef** et mis à jour à chaque tour (voir `CLA
 
 ## Sessions
 
+- 2026-10-23 17h35 : **Chef = elijah-5b** (Elijah : « tu vas être un chef de codeurs » ; les sessions elijah-76, dd, 9e et a7 étaient fermées). Les Codeurs sont relancés par Elijah avec « Le Chef est la session elijah-5b ». Les ordres des tours 21c (Codeur 3) et 22b (Codeur 2) restent valables ; le Codeur 1 reçoit le tour 22 (rapports/tour-22-rapport.md : la cause du non-déterminisme, trouvée par le Chef, puis le duel).
 - 2026-10-18 : Chef elijah-2d, Codeur elijah-0e
 - 2026-10-19 : Chef **elijah-76**, Codeur **elijah-dd** (donné par Elijah)
 - 2026-10-21 ~19h10 : elijah-dd (Codeur 1, les IA) passe sur le modèle **Fable 5.1**, effort **high** (choix d'Elijah, conseil du Chef) ; elijah-9e et le Chef restent sur Opus 5.5.
@@ -13,10 +14,12 @@ Le carnet de bord, tenu par **le Chef** et mis à jour à chaque tour (voir `CLA
 
 ## Règles de tests (2026-10-21, accord d'Elijah)
 
-- Le Mac est un Mac mini 2014 (i5 2 cœurs / 4 fils, 8 Go) : charge 6–15 avec 2 Codeurs. Pas de 3e Codeur (le Chef l'a déconseillé : il attendrait le verrou).
-- Pendant le travail : seulement la partie concernée (`tests/lancer.py moteur|courses|ecrans`, ou `tests/ecrans.py`) ; avant chaque commit : la suite complète, une fois. Toujours sous le verrou /tmp/gpd-tests.lock.
+- Le Mac est un Mac mini 2014 (i5 2 cœurs / 4 fils, 8 Go) : charge 6–15 avec 2 Codeurs qui testent.
+- Depuis le 2026-10-22 (CLAUDE.md, « Aller plus vite ») : la suite complète tourne sur GitHub Actions à chaque push ; sur le Mac, seulement la partie concernée (`tests/lancer.py moteur|courses|ecrans|annexes`), toujours sous le verrou /tmp/gpd-tests.lock ; au plus 3 Codeurs, plus le Chef. Le Chef vérifie les branches dans une copie à lui (git worktree dans son dossier de travail), jamais dans les dossiers des Codeurs.
 
 ## Horaires
+
+- 2026-10-23 : boucle jusqu'à **21h** (ordres des tours 21, 21b, 21c, 22, 22b). Rien de nouveau après 20h40, dernier push à 20h50, comptes rendus avant 20h55.
 
 - 2026-10-21 : boucle relancée à 17h (« recommence la boucle »), fin à 21h comme la veille. Mac gardé éveillé jusqu'à 21h10.
 
@@ -26,7 +29,10 @@ Le carnet de bord, tenu par **le Chef** et mis à jour à chaque tour (voir `CLA
 
 ## Tour en cours
 
-Aucun. Boucle du 2026-10-22 **figée à 20h35 sur 23ba770 (vert, 62/100)**. Reprise : rapports/fin-2026-10-22.md.
+Trois tours ouverts le 2026-10-23, main = ab23312 (63/100), Chef elijah-5b :
+- **Tour 22, Codeur 1** (branche determinisme 7ad2d50 → duel) : remplacer les deux `Math.pow` de l'aplatissement (ia.js:117-118) par des multiplications (cause des 6 échecs GitHub, voir « Bugs connus »), re-épingler les temps, GitHub vert ; puis le duel (vainqueur ≠ poleman ≥ 3/30). rapports/tour-22-rapport.md.
+- **Tour 22b, Codeur 2** (branche codeur2, dossier « - codeur 2 », fantome.js commencé, non commité) : le fantôme du meilleur tour, puis le départ parfait. rapports/tour-22b-rapport.md.
+- **Tour 21c, Codeur 3** (branche codeur3, dossier « - codeur 3 », actuellement sur la branche `circuits`) : ordre 1 (score du duel) poussé en f7255ce et vert ; ordres 2–4 (duel à l'écran, journal.js, la une à l'écran) en cours dans le commit local 752831a, pas poussé. Ensuite : les 12 circuits ressemblants (rapports/circuits-ressemblants-rapport.md, branche circuits). rapports/tour-21c-rapport.md (sur la branche codeur3).
 
 Découpage de l'étape 4 : 4a (tours 7–8 : circuit technique, une IA seule ≤ 50 s sur Test) → 4b (plusieurs IA sans se toucher) → 4c (dépasser, défendre) → 4d (caractères, niveaux, page des 50 courses).
 
@@ -53,6 +59,7 @@ Découpage de l'étape 4 : 4a (tours 7–8 : circuit technique, une IA seule ≤
 | 17 | fa19fdb | 55 | 12 | 15 | 1 | 8 | 8 | 10 | 1 |
 | 18 + 18b | 3962493 | 60 | 12 | 16 | 4 | 11 | 9 | 10 | 1 |
 | 19 + 19b | f2ff5ee | 62 | 12 | 16 | 6 | 12 | 9 | 10 | 2 |
+| 21b | 81c254d | 63 | 12 | 16 | 6 | 12 | 9 | 10 | 3 |
 
 ## À essayer par Elijah
 
@@ -71,14 +78,7 @@ Découpage de l'étape 4 : 4a (tours 7–8 : circuit technique, une IA seule ≤
 
 ## Fini
 
-- Rien encore (le `CLAUDE.md` est écrit, au 2026-10-18).
-
-## À faire dans l'étape en cours
-
-- [ ] `git init`
-- [ ] `index.html` et Three.js en local dans `lib/`
-- [ ] la boucle avec la physique à rythme fixe
-- [ ] `tests/lancer.py` et une première page de test
+- Étapes 0, 1, 2, 3 (acceptées par Elijah). L'étape 4 (IA) est presque là : il manque le duel (vainqueur ≠ poleman 0/30). Des morceaux des étapes 5 (feux, qualification, podium), 6 (championnat, sauvegarde), 7 (pneus désactivés), 13 (enregistreur) et 15 (sdk.js) sont posés.
 
 ## Décidé
 
@@ -92,6 +92,7 @@ Découpage de l'étape 4 : 4a (tours 7–8 : circuit technique, une IA seule ≤
 
 ## Bugs connus
 
+- **Non-déterminisme Mac / Linux (trouvé le 2026-10-23 par le Chef elijah-5b, correction au tour 22)** : sur le même commit (determinisme 7ad2d50), toutes les empreintes sont identiques au bit près entre le Mac et GitHub (Math sur 2000 entrées, physique, circuits, les 300 passes du lissage), sauf l'aplatissement : `Math.pow(|u|, 7)` et `Math.pow(|u|, 6)` (ia.js:117-118) donnent Σpow7 102066.19181642555 sur Mac et 102066.19181642302 sur Linux. La trajectoire diverge (Σécart test −5161 contre −4935), d'où les 6 tests rouges. Remède : des multiplications à la place de Math.pow.
 - Git n'a plus d'identité (le nom réseau du Mac a changé) : les commits utilisent `-c user.name=Elijah -c user.email=Elijah@mini-de-emcitv.home`. À régler par Elijah s'il veut (`git config --global`).
 - « console vide » échoue parfois sur « GPU stall due to ReadPixels » quand le Mac est chargé : causé par les captures de Playwright (le jeu ne lit jamais les pixels). Tour 17 : ignoré dans le test.
 - À surveiller en 4b : départ impossible (épingle à 60 m/s, nez vers l'extérieur) = 1288 pas (≈ 10 s) contre la barrière avant de repartir. Une IA collée au mur 10 s se verra.
@@ -111,6 +112,8 @@ Découpage de l'étape 4 : 4a (tours 7–8 : circuit technique, une IA seule ≤
 | 2026-10-18 | 2 (tour 4) | **> 90 i/s** en général (Elijah) | — | 1 voiture, 6 appels de dessin, pixelRatio 1,5 |
 
 ## Retours d'Elijah
+
+- 2026-10-23 ~17h05 : « c'est possible de faire plus ressemblant au vrai ? » (les 12 tracés) → **décision d'Elijah** : circuits très ressemblants (reconnaissables au premier coup d'œil), noms changés, aucun logo. CLAUDE.md mis à jour ; ordre dans rapports/circuits-ressemblants-rapport.md, pour le premier Codeur libre (branche `circuits`). Codeur 3 = elijah-a7 (branche codeur3), donné par Elijah le même jour.
 
 - 2026-10-21 ~18h10 : « un autre Claude fait des changements dans le CLAUDE.md, il fait des idées, laisse-le ». → Le Chef et le Codeur ne touchent pas à ses changements de CLAUDE.md et ne les commitent pas avec leur travail (`git add -p` pour leurs propres lignes).
 
