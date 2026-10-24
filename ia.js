@@ -452,7 +452,7 @@ function noterLigne(pilote, v, voisines, s0, t, type) {
   // son freinage : la marge habituelle, son style et son rythme (un pilote plus rapide freine plus près de la limite) ;
   // en attaque, il ose le freinage complet. Son rythme moyen, pas celui du tour : un freinage qui change d'un tour à
   // l'autre surprend celui qui le suit (tour 16 : 9 chocs au lieu de 6 sur les 30 courses)
-  const frein = R.IA_MARGE_FREIN * pilote.rythme * (pilote.attaque && pilote.attaque.etat !== 'preparer' ? R.IA_ATTAQUE_FREIN : pilote.style.frein);
+  const frein = R.IA_MARGE_FREIN * pilote.rythme * (pilote.attaque && (pilote.attaque.etat === 'decaler' || pilote.attaque.etat === 'plonger') ? R.IA_ATTAQUE_FREIN : pilote.style.frein);
   for (let i = N - 2; i >= 0; i--) {
     const ds = Math.hypot(x[i + 1] - x[i], z[i + 1] - z[i]);
     vb[i] = Math.min(vb[i], Math.sqrt(vb[i + 1] * vb[i + 1] + 2 * frein * freinagePossible(vb[i + 1]) * ds));
@@ -529,7 +529,7 @@ function deciderLigne(pilote, v, vues) {
   const sens = sensProchainVirage(carte, s0);
   // en attaque (décalé ou en train de plonger) : une seule ligne, à côté de la voiture attaquée, jusqu'après le
   // sommet du virage ; sinon, ses lignes habituelles
-  const a = pilote.attaque, enAttaque = a && a.etat !== 'preparer';
+  const a = pilote.attaque, enAttaque = a && (a.etat === 'decaler' || a.etat === 'plonger');   // (en remontée, il reste derrière)
   const essais = enAttaque ? [['attaque', a.cote]] : [['rapide', 0], ['continuer', 0]];
   pilote.depassement = !!enAttaque;
   // les voitures lentes ou arrêtées qu'il voit (estLente), et les plus proches devant lui (IA_LENTE_NB) : il les contourne
@@ -691,9 +691,16 @@ function majAttaque(pilote, v, vues, dt) {
   const g = ecartLeLong(c, w.s - p.s);
   if (g < -(R.LONGUEUR_VOITURE + R.IA_MARGE_LONG)) return finirAttaque(pilote, true, 'passé');   // il est passé
   const limite = c.largeur / 2 - R.IA_MARGE_BORD_MIN, ecart = ecartSur(v.u);
-  if (a.etat === 'preparer') {
+  if (a.etat === 'preparer' || a.etat === 'remonter') {
     if (g > R.IA_ATTAQUE_ECART_TEMPS * Math.max(v.u, R.IA_VISEE_MIN)) return finirAttaque(pilote, false, 'échappée g ' + g.toFixed(1) + ' u ' + v.u.toFixed(0));   // elle s'est échappée
     const f = prochainFreinage(carte, p.s);
+    // la remontée (tour 22) : dans son sillage, avant une vraie ligne droite, à moins de IA_REMONTEE_DISTANCE (ou ce qu'il fait en
+    // IA_REMONTEE_TEMPS) du freinage, il n'est plus retenu derrière elle (piloterIA) : l'aspiration le ramène à sa hauteur avant
+    // qu'il se décale ; le freinage passé sans décalage, il revient se préparer derrière
+    const droiteOk = !!f && carte.virages[f.j].droite >= R.IA_DROITE_ATTAQUE * (1 - R.IA_AGRESSIVITE_DROITE * agressivite(pilote));
+    const porteeRemontee = Math.max(R.IA_REMONTEE_DISTANCE, Math.max(0, v.u) * R.IA_REMONTEE_TEMPS);
+    if (R.IA_REMONTEE && a.etat === 'preparer' && droiteOk && g < R.IA_DECALAGE_ECART && Math.abs(w.d - p.d) < R.ASPIRATION_LARGEUR && f.distance < porteeRemontee) a.etat = 'remonter';
+    else if (a.etat === 'remonter' && (!f || f.distance > porteeRemontee)) a.etat = 'preparer';
     // tout près, ou en train de fondre sur elle au freinage (il voudrait aller nettement plus vite qu'elle)
     const ligne = pilote.ligne, r = ligne ? ((p.s - ligne.s0) % c.longueur + c.longueur) % c.longueur : 0;
     const fond = ligne && valeurLigne(ligne.v, r) - w.vitesse > R.IA_RAPPROCHEMENT;
@@ -702,7 +709,7 @@ function majAttaque(pilote, v, vues, dt) {
       // côté intérieur du virage, s'il y a la place ; sinon l'extérieur ; sinon il attend le virage suivant
       // seulement dans une zone de freinage après une vraie ligne droite, jamais dans un enchaînement
       // (plus agressif : une droite un peu plus courte lui suffit)
-      if (carte.virages[f.j].droite < R.IA_DROITE_ATTAQUE * (1 - R.IA_AGRESSIVITE_DROITE * agressivite(pilote))) return;
+      if (!droiteOk) return;
       const sens = carte.virages[f.j].sens;
       const cote = Math.abs(w.d + sens * ecart) <= limite ? sens : Math.abs(w.d - sens * ecart) <= limite ? -sens : 0;
       if (cote) { a.etat = 'decaler'; a.virage = f.j; a.cote = cote; }
@@ -782,7 +789,12 @@ function piloterIA(pilote, v, vues, dt) {
   let cible = libre, retenuPar = null;
   for (const w of vues) {
     const g = ecartLeLong(c, w.s - p.s);
-    if (g <= 0 || (a && a.etat !== 'preparer' && w.id === a.id)) continue;
+    if (g <= 0) continue;
+    if (a && a.etat === 'remonter' && w.id === a.id) {   // en remontée : il ne se règle plus sur elle, mais il ne la percute pas
+      if (g < R.LONGUEUR_VOITURE + R.IA_REMONTEE_MIN) cible = Math.min(cible, w.vitesse);
+      continue;
+    }
+    if (a && a.etat !== 'preparer' && w.id === a.id) continue;
     // sur sa ligne, ou tout près de son axe (une voiture qui se rabat devant lui) : il reste derrière
     // (une voiture lente ou arrêtée : ni la file ni le couloir ; il la contourne, et seule une ligne qui passe sur elle le
     // retient. Au pas (sous IA_LENTE_VITESSE_FROLE), il la frôle s'il le faut, à IA_LENTE_SUR : sinon, à l'arrêt derrière elle,
@@ -801,7 +813,11 @@ function piloterIA(pilote, v, vues, dt) {
     // s'en tenir à IA_DISTANCE_SUIVI, il attendrait qu'elle parte, et les rangées partiraient l'une après l'autre (le
     // joueur, derrière, leur rentrait dedans) : tout le monde part en même temps, et pendant le lancement (ses
     // IA_DEPART_LANCEMENT premiers mètres), il la suit à IA_DISTANCE_MIN ; ensuite, la distance habituelle revient
-    const suivi = sillage ? R.IA_DISTANCE_ATTAQUE : pilote.parcouru < R.IA_DEPART_LANCEMENT ? R.IA_DISTANCE_MIN : R.IA_DISTANCE_SUIVI;
+    // (en préparant son attaque hors du sillage, dans les virages : un écart en temps, IA_SUIVI_TEMPS, borné en mètres par
+    // IA_DISTANCE_MIN et IA_DISTANCE_SUIVI : à 14 m fixes, 0,35 s en virage deviennent 29 m à la sortie, l'attaque meurt — tour 22)
+    const enPreparation = a && w.id === a.id && R.IA_SUIVI_TEMPS > 0;
+    const suivi = sillage ? R.IA_DISTANCE_ATTAQUE : pilote.parcouru < R.IA_DEPART_LANCEMENT ? R.IA_DISTANCE_MIN
+      : enPreparation ? Math.max(R.IA_DISTANCE_MIN, Math.min(R.IA_DISTANCE_SUIVI, Math.max(0, v.u) * R.IA_SUIVI_TEMPS)) : R.IA_DISTANCE_SUIVI;
     const derriere = vitesseDerriere({ distance: g, vitesse: w.vitesse }, suivi);
     if (derriere < cible) { cible = derriere; retenuPar = w.id; }
   }

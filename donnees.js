@@ -238,6 +238,12 @@ const REGLAGES = {
   IA_ATTAQUE_ECART_TEMPS: 1,    // s : la voiture attaquée s'échappe à plus de ça devant : l'attaque s'arrête
   IA_DISTANCE_ATTAQUE: 7,       // m : en préparant son attaque, elle se cale à ça derrière (dans le sillage)
   IA_DECALAGE_ECART: 20,        // m : elle ne se décale que si elle est à moins de ça derrière
+  // la remontée (tour 22) : dans le sillage, avant le freinage, elle n'est plus retenue derrière l'attaquée
+  IA_REMONTEE: 1,               // 1 : en marche
+  IA_REMONTEE_DISTANCE: 150,    // m avant le point de freinage, au moins…
+  IA_REMONTEE_TEMPS: 2,         // s : … ou la distance parcourue en ce temps
+  IA_REMONTEE_MIN: 2,           // m : elle ne remonte pas à moins d'une longueur de voiture plus ça (elle ne la percute pas)
+  IA_SUIVI_TEMPS: 0,            // s : en préparant son attaque (hors sillage), elle suit à cet écart en temps (entre IA_DISTANCE_MIN et IA_DISTANCE_SUIVI) ; 0 = 14 m fixes (essai C du tour 22 : à 0,2 s, le rapide perd le contact, tours 57,5 s)
   IA_DECALAGE_DISTANCE: 60,     // m avant le point de freinage, au moins, elle se décale à côté…
   IA_DECALAGE_TEMPS: 1.2,       // s : … ou la distance parcourue en ce temps
   IA_RAPPROCHEMENT: 5,          // m/s : … ou s'il arrive au moins ça plus vite qu'elle (au freinage)
