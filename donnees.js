@@ -130,6 +130,18 @@ const REGLAGES = {
   // ?pneus=1 les active (l'usure de la voiture du joueur baisse son adhérence) ; sans ça, la course est identique au bit près
   PNEUS_ACTIFS: false,
 
+  // la une du journal après chaque Grand Prix (journal.js, Codeur 3) ; les titres et les brèves sont dans textes.js (uneTitre_…, uneTexte_…, breve…)
+  JOURNAL_PRIORITES: ['titreChampion', 'premiereVictoire', 'victoire', 'premierPodium', 'podium', 'record', 'duelGagne', 'duelPerdu',
+    'penalite', 'serie', 'leader', 'vainqueur'],   // le grand titre : le premier fait vrai de cette liste (« vainqueur » est toujours vrai)
+  JOURNAL_DUEL_NET: 3,          // le duel contre le coéquipier fait le titre quand l'écart de la saison est d'au moins ce nombre de points
+  JOURNAL_SERIE: 3,             // … une série de ce nombre de Grands Prix sans point
+  JOURNAL_ECART_LEADER: 25,     // … le leader (pas le joueur) s'envole : au moins ces points d'avance, et l'avance a grandi
+  JOURNAL_FORME_COURSES: 3,     // brève « en grande forme » : un rival qui a fait au moins JOURNAL_FORME_PODIUMS podiums sur ces derniers Grands Prix
+  JOURNAL_FORME_PODIUMS: 2,
+  JOURNAL_BREVES_MAX: 3,        // les brèves sur le côté, au plus
+  JOURNAL_CLASSEMENT: 5,        // en bas : les premiers du championnat (et le joueur s'il n'y est pas)
+  JOURNAL_GRAINE: 6000,         // les variantes des titres sont tirées avec la graine du championnat + ce nombre + le Grand Prix
+
   // le robot d'essai (préparation des IA)
   ROBOT_VISEE_MIN: 12,          // m : il vise un point au moins à cette distance devant lui
   ROBOT_VISEE_TEMPS: 0.55,      // s : … ou à la distance parcourue en ce temps
@@ -180,6 +192,18 @@ const REGLAGES = {
   IA_FILE_DISTANCE: 30,         // m : hors attaque, une voiture devant lui à moins de ça…
   IA_FILE_COTE: 6,              // m : … et à moins de ça de côté, il la suit (il reste à la file)
   IA_FILE_LIGNE: 1,             // 1 : une voiture devant lui sur sa ligne rapide (à sa hauteur à elle) est dans sa file : il la suit, il ne l'évite pas (tour 22)
+  // une voiture lente ou arrêtée (décision d'Elijah, tour 22) : on la contourne, n'importe où, dès qu'il y a la place
+  IA_LENTE_PART: 0.6,           // une voiture vue à moins de cette part de la vitesse de la carte à son endroit est « lente »
+  IA_LENTE_ECART: 5,            // m : la ligne « éviter » passe à ça d'elle (plus que IA_REFLEXE_COTE : le réflexe ne le freine pas)
+  IA_LENTE_CONTACT: 4,          // m : une ligne qui passe à moins de ça d'elle compte comme un contact (moins que IA_LENTE_ECART : près du bord, la ligne est bornée)
+  IA_LENTE_NB: 2,               // il contourne les 2 voitures lentes les plus proches devant lui (une ligne « éviter » de chaque côté pour chacune)
+  IA_PENALITE_LENTE: 30,        // s ajoutées à la note d'une ligne qui touche une voiture lente ou arrêtée (on ne passe pas à travers)
+  IA_LENTE_SUR: 2.5,            // m : au pas, il ne se retient derrière elle que si sa ligne passe à moins de ça d'elle (il la frôle)
+  IA_LENTE_VITESSE_FROLE: 5,    // m/s (18 km/h) : « au pas », c'est en dessous de ça
+  IA_LENTE_PROCHE: 15,          // m : plus vite, une voiture lente à moins de ça devant lui et de côté à moins de l'écart sûr le retient
+  IA_LENTE_AVANT: 40,           // m : il se porte à côté d'elle sur cette distance avant elle…
+  IA_LENTE_TEMPS: 1,            // s : … ou ce qu'il parcourt en ce temps, si c'est plus
+  IA_LENTE_APRES: 15,           // m : il reste à côté jusque-là derrière elle, puis revient sur sa ligne
   IA_VITESSE_VIRAGE_LENT: 36,   // m/s (130 km/h) : un virage lent, la carte y passe moins vite que ça…
   IA_NEZ_DEVANT: 0.5,           // … au point de freinage, l'attaquant doit y avoir le nez devant (son centre au moins cette part de longueur devant)
   IA_REFLEXE_COTE: 4.5,         // m : il ne braque pas vers une voiture à côté de lui plus près que ça
