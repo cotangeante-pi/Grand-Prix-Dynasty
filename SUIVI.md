@@ -172,6 +172,7 @@ Note du Chef elijah-5b (2026-10-23) : les lignes 18 à 19b ne s'additionnaient p
 
 ## Retours d'Elijah
 
+- 2026-10-27 ~16h45 : « oui fais la météo quand un aura fini sa part ; si tout est fini améliore les voitures ia et fais qu'on puisse discuter avec eux, des discussions comme dans gestion de pays (à mettre dans claude.md) ; ps je ne pourrais pas faire de tests avant longtemps » → **décisions d'Elijah** écrites dans CLAUDE.md (« La météo », « Les discussions avec les pilotes et les écuries », étapes 12 et 12b). Ordre de travail : la météo au premier Codeur libre ; puis, quand tout le reste est fini, les IA améliorées (Chef : leur rythme rapproché de celui d'Elijah, 45 s sur le test contre 49 s, et le duel) et les discussions. Elijah ne fera pas d'essais avant longtemps : on avance sans lui (règle du 2026-10-27).
 - 2026-10-24 ~18h10 : « dans le mode 2 joueurs sépare l'écran de droite à gauche et pas de haut en bas » → **décision d'Elijah** : écran partagé gauche/droite (J1 à gauche, J2 à droite), écrite dans CLAUDE.md ; ordre au Codeur 2.
 - 2026-10-24 ~14h35 : « ce serait bien si on finit une course et qu'on skippe la tv, toute la course se met en x100 de façon à ce que le temps que tu arrives sur le podium tout le monde a fini » → **décision d'Elijah** écrite dans CLAUDE.md (« La course ») ; ordre donné au Codeur 2, avant le tournoi chrono.
 - 2026-10-23 ~18h50 : « c'est normal que si on bloque une formule 1 tout un trafic à la queue leu leu attend ? ils sont censés doubler » → **décision d'Elijah** : une voiture bloquée ou très lente se contourne, partout, sans attendre une zone d'attaque (écrit dans CLAUDE.md, « Les IA des adversaires »). Cause : la règle de la file (IA_FILE_DISTANCE 30 m, IA_FILE_COTE 6 m) et l'attaque seulement avant un virage précédé de 150 m de droite. Ordre 3 du tour 22 au Codeur 1. Ça tranche aussi la question « contournement sans attaque » : voulu.
@@ -205,7 +206,6 @@ Note du Chef elijah-5b (2026-10-23) : les lignes 18 à 19b ne s'additionnaient p
 
 - La liste des 12 circuits.
 - La liste exacte des améliorations du garage.
-- La météo à l'étape 12 : oui ou non.
 
 ## Journal des sessions
 
