@@ -549,7 +549,7 @@ function noterLigne(pilote, v, voisines, s0, t, type) {
   // son freinage : la marge habituelle, son style et son rythme (un pilote plus rapide freine plus près de la limite) ;
   // en attaque, il ose le freinage complet. Son rythme moyen, pas celui du tour : un freinage qui change d'un tour à
   // l'autre surprend celui qui le suit (tour 16 : 9 chocs au lieu de 6 sur les 30 courses)
-  const vivante = v.ia && R.VIVANTE_IA && voitureVivante() > 0 ? R.IA_VIVANTE_FREIN_MAX : 1;   // (la voiture vivante : il prévoit le frein qu'il dose)
+  const vivante = v.ia && R.VIVANTE_IA && voitureVivante() > 0 ? R.IA_VIVANTE_FREIN_MAX * R.IA_VIVANTE_MARGE : 1;   // (la voiture vivante : il prévoit le frein qu'il dose)
   const frein = vivante * R.IA_MARGE_FREIN * pilote.rythme * (pilote.attaque && (pilote.attaque.etat !== 'preparer' || pilote.attaque.proche) ? R.IA_ATTAQUE_FREIN : pilote.style.frein) * (v.adhMeteo || 1);   // (sur le mouillé, il freine plus tôt : × l'adhérence de la météo, 1 au sec)
   for (let i = N - 2; i >= 0; i--) {
     const ds = Math.hypot(x[i + 1] - x[i], z[i + 1] - z[i]);
@@ -1111,6 +1111,11 @@ function piloterIA(pilote, v, vues, dt) {
   if (v.ia && REGLAGES.VIVANTE_IA && voitureVivante() > 0) {
     frein = Math.min(frein, R.IA_VIVANTE_FREIN_MAX);
     gaz = Math.min(gaz, (v.gaz || 0) + R.IA_VIVANTE_RAMPE_GAZ * dt);
+    // (tour 42, Codeur 4) freiner droit, puis tourner : l'arrière, délesté au freinage, part quand on braque en plus ; plus il braque
+    // au-delà d'IA_VIVANTE_BRAQUAGE, moins il freine (rien à fond de braquage) ; ou (IA_VIVANTE_BRAQUAGE_FREIN) il braque moins en freinant fort
+    const b = Math.abs(dir), s0 = R.IA_VIVANTE_BRAQUAGE;
+    if (R.IA_VIVANTE_BRAQUAGE_FREIN > 0) { if (frein > R.IA_VIVANTE_BRAQUAGE_FREIN && b > s0) dir = Math.sign(dir) * s0; }
+    else if (b > s0) frein = Math.min(frein, R.IA_VIVANTE_FREIN_MAX * Math.max(0, (1 - b) / (1 - s0)));
   }
   return {
     gaz,
