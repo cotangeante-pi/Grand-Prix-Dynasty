@@ -549,7 +549,8 @@ function noterLigne(pilote, v, voisines, s0, t, type) {
   // son freinage : la marge habituelle, son style et son rythme (un pilote plus rapide freine plus près de la limite) ;
   // en attaque, il ose le freinage complet. Son rythme moyen, pas celui du tour : un freinage qui change d'un tour à
   // l'autre surprend celui qui le suit (tour 16 : 9 chocs au lieu de 6 sur les 30 courses)
-  const frein = R.IA_MARGE_FREIN * pilote.rythme * (pilote.attaque && (pilote.attaque.etat !== 'preparer' || pilote.attaque.proche) ? R.IA_ATTAQUE_FREIN : pilote.style.frein) * (v.adhMeteo || 1);   // (sur le mouillé, il freine plus tôt : × l'adhérence de la météo, 1 au sec)
+  const vivante = v.ia && R.VIVANTE_IA && voitureVivante() > 0 ? R.IA_VIVANTE_FREIN_MAX : 1;   // (la voiture vivante : il prévoit le frein qu'il dose)
+  const frein = vivante * R.IA_MARGE_FREIN * pilote.rythme * (pilote.attaque && (pilote.attaque.etat !== 'preparer' || pilote.attaque.proche) ? R.IA_ATTAQUE_FREIN : pilote.style.frein) * (v.adhMeteo || 1);   // (sur le mouillé, il freine plus tôt : × l'adhérence de la météo, 1 au sec)
   for (let i = N - 2; i >= 0; i--) {
     const ds = Math.hypot(x[i + 1] - x[i], z[i + 1] - z[i]);
     vb[i] = Math.min(vb[i], Math.sqrt(vb[i + 1] * vb[i + 1] + 2 * frein * freinagePossible(vb[i + 1]) * ds));
@@ -1104,8 +1105,15 @@ function piloterIA(pilote, v, vues, dt) {
   const ecartVitesse = cible - v.u;
   let frein = ecartVitesse < 0 ? Math.min(1, -ecartVitesse * R.IA_GAIN_FREIN) : 0;
   if (er === 'blocage') frein = Math.min(frein, R.IA_ERREUR_BLOCAGE);   // roues bloquées : il freine moins, plus longtemps
+  let gaz = ecartVitesse > 0 ? Math.min(1, ecartVitesse * R.IA_GAIN_GAZ) : 0;
+  // la voiture vivante (VIVANTE_IA) : il dose le frein (IA_VIVANTE_FREIN_MAX, freine donc plus tôt : noterLigne) et remet les gaz en rampe
+  // (IA_VIVANTE_RAMPE_GAZ par seconde), sinon l'arrière part ; sans voiture vivante, les commandes d'avant au bit près
+  if (v.ia && REGLAGES.VIVANTE_IA && voitureVivante() > 0) {
+    frein = Math.min(frein, R.IA_VIVANTE_FREIN_MAX);
+    gaz = Math.min(gaz, (v.gaz || 0) + R.IA_VIVANTE_RAMPE_GAZ * dt);
+  }
   return {
-    gaz: ecartVitesse > 0 ? Math.min(1, ecartVitesse * R.IA_GAIN_GAZ) : 0,
+    gaz,
     frein,
     direction: Math.max(-1, Math.min(1, dir)),
   };

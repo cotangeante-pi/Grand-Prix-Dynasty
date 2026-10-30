@@ -41,6 +41,8 @@ const REGLAGES = {
   // la voiture vivante (expert et légende, physique.js pasPneusVivant) : VOITURE_VIVANTE × NIVEAUX[…].vivante (débutant et normal : 0, la voiture d'aujourd'hui au bit près)
   VOITURE_VIVANTE: 1,           // le curseur (&reglages=1) : 1 = la voiture vivante, d'office en expert et légende (tour 41b) ; 0 = la voiture d'aujourd'hui
   VIVANTE_IA: 0,                // 1 = les IA roulent aussi en voiture vivante ; 0 = le joueur seul (les IA ne savent pas encore la piloter : tour 41, en légende, 47 s → plus de 180 s au tour)
+  IA_VIVANTE_FREIN_MAX: 0.6,    // en voiture vivante (VIVANTE_IA), l'IA ne freine qu'à cette part, et le prévoit (ia.js)
+  IA_VIVANTE_RAMPE_GAZ: 2,      // … et remet les gaz au plus de ça par seconde
   VIVANTE_HAUTEUR_CG: 0.3,      // m : la hauteur du centre de gravité (le transfert de charge : masse × accélération × hauteur / empattement)
   VIVANTE_ADHERENCE_ARRIERE: 1.15, // l'arrière n'accroche plus que ça de plus que l'avant (au lieu d'ADHERENCE_ARRIERE)
   VIVANTE_REPARTITION_FREIN: 0.6,  // part du freinage sur l'avant
