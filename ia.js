@@ -524,7 +524,8 @@ function noterLigne(pilote, v, voisines, s0, t, type) {
   const pointe = pilote.carte.pointe / racineCubique(v.aileronTrainee || 1), rythme = rythmeDuTour(pilote), dehors = c.largeur / 2 + R.MARGE_HERBE, bord = c.largeur / 2 - (pilote.bordMin === undefined ? R.IA_MARGE_BORD_MIN : pilote.bordMin);   // (le niveau : pilote.bordMin)
   // (la limite qu'il ose, pilote.limite : le niveau de difficulté, NIVEAUX[…].limite ; la voiture accroche un peu plus que vitesseVirage
   // ne le dit, l'arrière accroche plus que l'avant : un pilote de haut niveau va la chercher ; × 1 au niveau normal, au bit près)
-  const lim = pilote.limite || 1;
+  // (la voiture vivante, VIVANTE_IA : l'arrière accroche moins, il vise moins vite dans les virages, × IA_VIVANTE_VIRAGE ; × 1 sinon)
+  const lim = (pilote.limite || 1) * (v.ia && R.VIVANTE_IA && voitureVivante() > 0 ? R.IA_VIVANTE_VIRAGE : 1);
   let penalite = 0, danger = false;   // danger : la ligne passe trop près du bord, dans l'herbe ou sur une voiture
   for (let i = 0; i < N; i++) {
     // (ses pneus usés : il connaît son adhérence réelle, v.adherence ; × 1 sans pneus, le même nombre au bit près)
