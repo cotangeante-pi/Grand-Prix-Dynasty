@@ -1079,6 +1079,10 @@ function piloterIA(pilote, v, vues, dt) {
     // de la carte en ce point ; sans ça, il freinait sur sa vitesse d'aujourd'hui, 60 m avant d'y être, et perdait 0,4 s au tour sur le technique)
     let vVue = freinPrevu > 0 ? Math.max(0, w.vitesse - freinPrevu * R.IA_FREIN_PREVU) : w.vitesse;
     if (R.IA_SUIVI_CARTE && g > R.IA_SUIVI_CARTE_LOIN) { const vc = valeurEn(c, pilote.carte.trajectoire.vitesse, w.s) * rythmeDuTour(pilote); if (w.vitesse >= R.IA_SUIVI_CARTE * vc) vVue = Math.max(vVue, vc); }
+    // (IA_SUIVI_LIBRE, duel-mesure : loin derrière une voiture qui roule normalement (au moins IA_SUIVI_NORMALE × la carte en son point, sans
+    // freiner plus que la carte), il ne règle pas sa vitesse sur la sienne d'aujourd'hui : elle va repartir comme lui le fera ; sinon, en
+    // freinant pour son virage à elle, 90 m devant, il freinait lui-même trop tôt (0,2 à 0,4 s au tour perdues sur le technique)
+    if (R.IA_SUIVI_LIBRE && g > R.IA_SUIVI_LIBRE && !(freinPrevu > 0) && w.vitesse >= R.IA_SUIVI_NORMALE * valeurEn(c, pilote.carte.trajectoire.vitesse, w.s) * rythmeDuTour(pilote)) continue;
     const derriere = vitesseDerriere({ distance: g, vitesse: vVue }, suiviEff);
     if (derriere < cible) { cible = derriere; retenuPar = w.id; }
   }

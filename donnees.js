@@ -688,6 +688,8 @@ const REGLAGES = {
   IA_FREIN_VU_TOUS: 1,          // duel-court : 1 = il prévoit le freinage de toute voiture qu'il voit ralentir devant lui (IA_FREIN_PREVU), pas seulement d'un autre aileron
   IA_ATTAQUE_LIGNE_PREVUE: 1,   // duel-court : 1 = la ligne d'attaque suit la place prévue de la voiture attaquée le long du virage (dPrevu) ; 0 = la course d'avant
   IA_RECHANGE_DISTANCE: 0,      // duel-court : > 0 = les lignes de rechange (intérieur, extérieur) seulement avec une voiture à moins de ça (m) ; 0 = dès qu'il en voit une
+  IA_SUIVI_LIBRE: 0,            // duel-mesure : > 0 = plus loin que ça (m) derrière une voiture qui roule normalement, il suit sa propre ligne ; 0 = la course d'avant
+  IA_SUIVI_NORMALE: 0.9,        // … « normalement » : au moins cette part de la vitesse de la carte en son point
   IA_SUIVI_CARTE: 0,            // duel-court : > 0 = une voiture vue devant qui roule au moins à cette part de la vitesse de la carte en son point est suivie comme si elle y allait à la vitesse de la carte (ia.js) ; 0 = la course d'avant
   IA_SUIVI_CARTE_LOIN: 20,      // m : … seulement plus loin que ça devant lui (plus près, sa vitesse vue)
   IA_ATTAQUE_CONTROLE: 40,      // m avant le sommet du virage : l'entrée, où elle doit être à hauteur…
